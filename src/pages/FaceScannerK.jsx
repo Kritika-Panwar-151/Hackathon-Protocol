@@ -200,7 +200,8 @@ export default function FaceScannerK() {
 
         </div>
       )}
-
+{!capturedFace && (
+  <>
       <button
         onClick={startCamera}
         className="bg-blue-600 text-white px-4 py-2 rounded mt-4"
@@ -214,7 +215,8 @@ export default function FaceScannerK() {
       >
         Capture Face
       </button>
-
+</>
+)}
       {capturedFace && (
         <div className="mt-4">
           <p className="font-semibold">Captured Face</p>
