@@ -20,11 +20,13 @@ export default function AdminDashboard() {
   const [alerts, setAlerts] = useState([]);
 
   const [stats, setStats] = useState({
-    total: 0,
-    asylum: 0,
-    medical: 0,
-    alerts: 0
-  });
+  total: 0,
+  asylum: 0,
+  medical: 0,
+  immigration: 0,
+  document: 0,
+  alerts: 0
+});
 
   useEffect(() => {
 
@@ -60,28 +62,39 @@ export default function AdminDashboard() {
   };
 
 }, []);
+useEffect(() => {
+  calculateStats(travelers, alerts);
+}, [travelers, alerts]);
 
   const calculateStats = (travelerData, alertData) => {
 
-    let asylum = 0;
-    let medical = 0;
+  let asylum = 0;
+  let medical = 0;
+  let immigration = 0;
+  let document = 0;
 
-    travelerData.forEach(t => {
+  travelerData.forEach(t => {
 
-      if (t.category === "asylum" || t.category === "refugee") asylum++;
+    if (t.laneNumber === "Lane 1") medical++;
 
-      if (t.health === "medical") medical++;
+    if (t.laneNumber === "Lane 2") document++;
 
-    });
+    if (t.laneNumber === "Lane 3") asylum++;
 
-    setStats({
-      total: travelerData.length,
-      asylum,
-      medical,
-      alerts: alertData.length
-    });
+    if (t.laneNumber === "Lane 4") immigration++;
 
-  };
+  });
+
+  setStats({
+    total: travelerData.length,
+    asylum,
+    medical,
+    immigration,
+    document,
+    alerts: alertData.length
+  });
+
+};
 
   const categoryData = [
   { name: "Tourist", value: travelers.filter(t => t.category === "tourist").length },
@@ -93,15 +106,15 @@ export default function AdminDashboard() {
 
 const laneData = [
   {
-    lane: "1 (Medical)",
+    lane: "L1 (Medical)",
     count: travelers.filter(t => t.laneNumber === "Lane 1").length
   },
   {
-    lane: "2(Doc Verification)",
+    lane: "L2 (Document Verification)",
     count: travelers.filter(t => t.laneNumber === "Lane 2").length
   },
   {
-    lane: "3 (Asylum)",
+    lane: "L3 (Asylum)",
     count: travelers.filter(t => t.laneNumber === "Lane 3").length
   },
   {
@@ -128,6 +141,14 @@ const laneData = [
           <h2 className="text-lg">Total Travelers</h2>
           <p className="text-2xl font-bold">{stats.total}</p>
         </div>
+        <div className="bg-purple-500 text-white p-4 rounded">
+  <h2 className="text-lg">Immigration Cases</h2>
+  <p className="text-2xl font-bold">{stats.immigration}</p>
+</div>
+<div className="bg-gray-500 text-white p-4 rounded">
+  <h2 className="text-lg">Document Verification</h2>
+  <p className="text-2xl font-bold">{stats.document}</p>
+</div>
 
         <div className="bg-red-500 text-white p-4 rounded">
           <h2 className="text-lg">Security Alerts</h2>
