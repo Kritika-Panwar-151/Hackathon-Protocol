@@ -43,16 +43,18 @@ const navigate = useNavigate();
 
   }
 
-  const travelerData = {
-    borderID,
-    name: traveler.name,
-    nationality: traveler.nationality,
-    passport: traveler.passportNumber || "none",
-    category: traveler.category,
-    lane: traveler.lane,
-    priority: traveler.priority,
-    health: traveler.health
-  };
+const travelerData = {
+  borderID,
+  name: traveler.name,
+  nationality: traveler.nationality,
+  passport: traveler.passportNumber || "none",
+  category: traveler.category,
+  health: traveler.health,
+  lane: traveler.lane,
+  laneNumber: traveler.laneNumber,
+  priority: traveler.priority,
+  timestamp: new Date().toISOString().split("T")[0]
+};
 
   await addDoc(collection(db, "travelers"), travelerData);
 
