@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
+import { db } from "../services/firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 export default function AsylumCheckpointK() {
 
@@ -15,27 +17,31 @@ export default function AsylumCheckpointK() {
   const [priority, setPriority] = useState("");
   const [agency, setAgency] = useState("");
 
+  // QR SCAN HANDLER
   const handleScan = (result) => {
 
-    if (result && !scanned) {
+  console.log("Scan result:", result);
 
-      try {
+  if (!result) return;
 
-        const decoded = JSON.parse(result[0].rawValue);
+  try {
 
-        setData(decoded);
-        setScanned(true);
+    const raw = result[0]?.rawValue || result.rawValue;
 
-      } catch {
+    const decoded = JSON.parse(raw);
 
-        console.log("Invalid QR format");
+    setData(decoded);
+    setScanned(true);
 
-      }
+  } catch {
 
-    }
+    console.log("Invalid QR format");
 
-  };
+  }
 
+};
+
+  // PRIORITY CALCULATION
   const calculatePriority = () => {
 
     let level = "NORMAL";
@@ -46,24 +52,53 @@ export default function AsylumCheckpointK() {
 
     setPriority(level);
 
+    return level;
+
   };
 
-  const registerCase = () => {
+  // STORE CASE
+  const registerCase = async () => {
 
-    calculatePriority();
+    const level = calculatePriority();
 
     const asylumCase = {
-      traveler: data,
+
+      borderID: data.borderID,
+      name: data.name,
+      nationality: data.nationality,
+      passport: data.passport,
+
+      category: data.category,
+      lane: data.lane,
+      laneNumber: data.laneNumber,
+      priority: data.priority,
+
       asylumReason: reason,
-      familyMembers,
-      vulnerability,
-      needs,
-      notes,
-      priority,
-      agency
+      familyMembers: familyMembers,
+      vulnerability: vulnerability,
+      needs: needs,
+      notes: notes,
+      agency: agency,
+
+      checkpointPriority: level,
+
+      timestamp: new Date().toISOString().split("T")[0]
+
     };
 
-    console.log("Asylum Case Registered:", asylumCase);
+    try {
+
+      await addDoc(collection(db, "asylumCases"), asylumCase);
+
+      alert("Asylum case registered successfully");
+
+      console.log("Stored:", asylumCase);
+
+    } catch (error) {
+
+      console.error("Error storing asylum case:", error);
+
+    }
 
   };
 
@@ -75,14 +110,37 @@ export default function AsylumCheckpointK() {
         Asylum / Humanitarian Checkpoint
       </h2>
 
-      {!scanned && (
+      {/* QR SCANNER */}
 
-        <Scanner
-          onScan={handleScan}
-          onError={(error) => console.log(error)}
-        />
+      {/* QR SCANNER */}
 
-      )}
+{/* QR SCANNER */}
+
+{!scanned && (
+  <div className="w-full max-w-md mx-auto">
+
+    <Scanner
+      onScan={handleScan}
+      onError={(error) => console.log("Scanner Error:", error)}
+      constraints={{
+        video: {
+          facingMode: "environment"
+        }
+      }}
+      styles={{
+        container: {
+          width: "100%"
+        },
+        video: {
+          width: "100%"
+        }
+      }}
+    />
+
+  </div>
+)}
+
+      {/* TRAVELER DATA */}
 
       {data && (
 
@@ -92,12 +150,14 @@ export default function AsylumCheckpointK() {
 
             <h3 className="font-semibold mb-2">Traveler Details</h3>
 
-            <p><b>Border ID:</b> {data.id}</p>
+            <p><b>Border ID:</b> {data.borderID}</p>
             <p><b>Name:</b> {data.name}</p>
-            <p><b>Nationality:</b> {data.nat}</p>
-            <p><b>Category:</b> {data.cat}</p>
+            <p><b>Nationality:</b> {data.nationality}</p>
+            <p><b>Passport:</b> {data.passport}</p>
+            <p><b>Category:</b> {data.category}</p>
             <p><b>Lane:</b> {data.lane}</p>
-            <p><b>Security:</b> {data.sec}</p>
+            <p><b>Lane Number:</b> {data.laneNumber}</p>
+            <p><b>Priority:</b> {data.priority}</p>
 
           </div>
 
@@ -177,16 +237,17 @@ export default function AsylumCheckpointK() {
             {priority && (
 
               <div className="mt-3 p-3 bg-yellow-100 rounded">
-
                 <b>Priority Level:</b> {priority}
-
               </div>
 
             )}
 
+            {/* NEXT TRAVELER */}
+
             <button
               className="bg-gray-600 text-white px-4 py-2 rounded mt-3"
               onClick={() => {
+
                 setData(null);
                 setScanned(false);
                 setReason("");
@@ -196,6 +257,7 @@ export default function AsylumCheckpointK() {
                 setNotes("");
                 setPriority("");
                 setAgency("");
+
               }}
             >
               Scan Next Traveler

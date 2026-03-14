@@ -1,7 +1,7 @@
 import LoginK from "./pages/LoginK";
 import PassportVerificationK from "./pages/PassportVerificationK";
 import { Routes, Route } from "react-router-dom";
-
+import AdminDashboard from "./pages/AdminDashboard";
 
 import Dashboard from "./pages/Dashboard";
 import Submit from "./pages/Submit";
@@ -22,7 +22,7 @@ function App() {
         <Routes>
 
           <Route path="/" element={<LoginK />} />
-          
+          <Route path="/admin" element={<AdminDashboard />} />
 <Route path="/security-alert" element={<SecurityAlertK />} />
           <Route path="/passport-verification" element={<PassportVerificationK />} />
           <Route path="/normal-scanner" element={<NormalCheckpointK />} />

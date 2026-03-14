@@ -31,7 +31,7 @@ export default function CategorizationK() {
     if (health === "medical") {
 
       assignedLane = "Medical / Emergency Lane";
-      laneNo = "Lane 5";
+      laneNo = "Lane 1";
       priorityLevel = "HIGH";
       emergency = true;
 
@@ -41,7 +41,7 @@ export default function CategorizationK() {
     else if (traveler.noPassport) {
 
       assignedLane = "Document Verification Lane";
-      laneNo = "Lane 4";
+      laneNo = "Lane 2";
       priorityLevel = "MEDIUM";
 
     }
@@ -67,7 +67,7 @@ export default function CategorizationK() {
     else {
 
       assignedLane = "Normal Immigration Lane";
-      laneNo = "Lane 1";
+      laneNo = "Lane 4";
 
       if (
         health === "child" ||
