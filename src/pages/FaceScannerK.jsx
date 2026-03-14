@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-
+import { db } from "../services/firebase";
+import { collection, addDoc } from "firebase/firestore";
 import * as faceapi from "face-api.js";
 import { useLocation, useNavigate } from "react-router-dom";
 export default function FaceScannerK() {
@@ -130,6 +131,16 @@ const navigate = useNavigate();
 
   setVerificationResult("⚠ Criminal Match Detected – Security Alert");
 
+  // Store alert in Firestore
+  await addDoc(collection(db, "securityAlerts"), {
+    name: traveler.name || "Unknown",
+    nationality: traveler.nationality || "Unknown",
+    passport: traveler.passportNumber || "none",
+    reason: "Criminal face match detected",
+    status: "detained",
+    timestamp: new Date()
+  });
+
   setTimeout(() => {
     navigate("/security-alert", {
       state: {
@@ -138,8 +149,7 @@ const navigate = useNavigate();
       }
     });
   }, 1500);
-
-} else {
+}else {
 
   setVerificationResult("✔ Face Clear — Proceeding to Categorization...");
 

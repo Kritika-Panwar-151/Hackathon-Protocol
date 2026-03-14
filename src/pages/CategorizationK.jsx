@@ -10,56 +10,75 @@ console.log("Traveler Data from Face Scan:", traveler);
   const [lane, setLane] = useState("");
   const [priority, setPriority] = useState("");
   const [emergencyAlert, setEmergencyAlert] = useState(false);
+  const [laneNumber, setLaneNumber] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    let assignedLane = "";
-    let priorityLevel = "NORMAL";
-    let emergency = false;
+let assignedLane = "";
+let laneNo = "";
+let priorityLevel = "NORMAL";
+let emergency = false;
 
-    // MEDICAL EMERGENCY
-    if (health === "medical") {
-      assignedLane = "Medical / Emergency Lane";
-      priorityLevel = "HIGH";
-      emergency = true;
-    }
+// MEDICAL EMERGENCY
+if (health === "medical") {
 
-    // REFUGEE / ASYLUM
-    else if (category === "refugee") {
-      assignedLane = "Humanitarian / Asylum Lane";
+  assignedLane = "Medical / Emergency Lane";
+  laneNo = "Lane 5";
+  priorityLevel = "HIGH";
+  emergency = true;
 
-      if (
-        health === "child" ||
-        health === "pregnant" ||
-        health === "elderly" ||
-        health === "disabled"
-      ) {
-        priorityLevel = "MEDIUM";
-      } else {
-        priorityLevel = "MEDIUM";
-      }
-    }
+}
 
-    // TOURIST / WORKER
-    else {
-      assignedLane = "Normal Immigration Lane";
+// NO PASSPORT
+else if (traveler.noPassport) {
 
-      if (
-        health === "child" ||
-        health === "pregnant" ||
-        health === "elderly" ||
-        health === "disabled"
-      ) {
-        priorityLevel = "MEDIUM";
-      } else {
-        priorityLevel = "NORMAL";
-      }
-    }
+  assignedLane = "Document Verification Lane";
+  laneNo = "Lane 4";
+  priorityLevel = "MEDIUM";
 
-    setLane(assignedLane);
-    setPriority(priorityLevel);
-    setEmergencyAlert(emergency);
+}
+
+// REFUGEE / ASYLUM
+else if (category === "refugee" || category === "asylum") {
+
+  assignedLane = "Humanitarian / Asylum Lane";
+  laneNo = "Lane 3";
+
+  if (
+    health === "child" ||
+    health === "pregnant" ||
+    health === "elderly" ||
+    health === "disabled"
+  ) {
+    priorityLevel = "MEDIUM";
+  }
+
+}
+
+// NORMAL TRAVELERS
+else {
+
+  assignedLane = "Normal Immigration Lane";
+  laneNo = "Lane 1";
+
+  if (
+    health === "child" ||
+    health === "pregnant" ||
+    health === "elderly" ||
+    health === "disabled"
+  ) {
+    priorityLevel = "MEDIUM";
+  }
+
+}
+
+setLane(assignedLane);
+setLaneNumber(laneNo);
+setPriority(priorityLevel);
+setEmergencyAlert(emergency);
+
+   
   };
 
   // Priority color helper
@@ -89,32 +108,41 @@ console.log("Traveler Data from Face Scan:", traveler);
         <label>Traveler Category</label>
 
         <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option value="">Select Category</option>
-          <option value="tourist">Tourist / Visitor</option>
-          <option value="worker">Worker / Migrant</option>
-          <option value="refugee">Refugee / Asylum Seeker</option>
-        </select>
+  value={category}
+  onChange={(e) => setCategory(e.target.value)}
+  className="border p-2 rounded"
+>
+  <option value="">Select Category</option>
+
+  <option value="tourist">Tourist / Visitor</option>
+  <option value="worker">Worker</option>
+  <option value="migrant">Migrant</option>
+
+  <option value="refugee">Refugee</option>
+  <option value="asylum">Asylum Seeker</option>
+
+  <option value="medical">Medical / Emergency</option>
+</select>
 
         {/* HEALTH */}
-        <label>Health Status</label>
+       <label>Health Status</label>
 
-        <select
-          value={health}
-          onChange={(e) => setHealth(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option value="">Select Status</option>
-          <option value="clear">Clear</option>
-          <option value="medical">Medical Emergency</option>
-          <option value="child">Child / Minor</option>
-          <option value="pregnant">Pregnant</option>
-          <option value="elderly">Elderly</option>
-          <option value="disabled">Disabled</option>
-        </select>
+<select
+  value={health}
+  onChange={(e) => setHealth(e.target.value)}
+  className="border p-2 rounded"
+>
+  <option value="">Select Status</option>
+
+  <option value="clear">Clear</option>
+  <option value="medical">Medical Emergency</option>
+
+  <option value="child">Child / Minor</option>
+  <option value="pregnant">Pregnant</option>
+  <option value="elderly">Elderly</option>
+  <option value="disabled">Disabled</option>
+
+</select>
 
         <button
           type="submit"
@@ -127,15 +155,19 @@ console.log("Traveler Data from Face Scan:", traveler);
 
       {/* RESULT */}
       {lane && (
-        <div className="mt-4 p-4 bg-gray-100 rounded">
+  <div className="mt-4 p-4 bg-gray-100 rounded">
 
-          <p className="font-semibold">
-            Assigned Lane: {lane}
-          </p>
+    <p className="font-semibold">
+      Assigned Lane: {lane}
+    </p>
 
-          <p className={`mt-2 font-semibold ${getPriorityColor()}`}>
-            Priority Level: {priority}
-          </p>
+    <p className="font-semibold">
+      Lane Number: {laneNumber}
+    </p>
+
+    <p className={`mt-2 font-semibold ${getPriorityColor()}`}>
+      Priority Level: {priority}
+    </p>
 
           {emergencyAlert && (
             <div className="mt-3 p-3 bg-red-100 text-red-700 rounded font-semibold">
@@ -149,14 +181,15 @@ console.log("Traveler Data from Face Scan:", traveler);
       <button
   onClick={() =>
     navigate("/qr-generator", {
-      state: {
-        ...traveler,
-        category,
-        health,
-        lane,
-        priority
-      }
-    })
+  state: {
+    ...traveler,
+    category,
+    health,
+    lane,
+    laneNumber,
+    priority
+  }
+})
   }
   className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
 >

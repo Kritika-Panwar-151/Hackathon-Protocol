@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-const stolenPassports = [
-  "X1234567",
-  "Z9876543",
-  "A9999999"
-];
-
+import { db } from "../services/firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 export default function PassportVerificationK() {
 
   const [passportNumber, setPassportNumber] = useState("");
@@ -14,7 +10,7 @@ export default function PassportVerificationK() {
   const [status, setStatus] = useState("");
   const [noPassport, setNoPassport] = useState(false);
   const navigate = useNavigate();
-  const verifyPassport = (e) => {
+  const verifyPassport = async (e) => {
 
     e.preventDefault();
 
@@ -30,7 +26,14 @@ export default function PassportVerificationK() {
         return;
       }
 
-      if (stolenPassports.includes(passportNumber)) {
+      const q = query(
+  collection(db, "stolenPassports"),
+  where("passportNumber", "==", passportNumber)
+);
+
+const querySnapshot = await getDocs(q);
+
+if (!querySnapshot.empty) {
 
   setStatus("⚠ Stolen passport detected! Security alert.");
 
