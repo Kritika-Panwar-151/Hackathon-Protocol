@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../services/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
 export default function PassportVerificationK() {
 
   const [passportNumber, setPassportNumber] = useState("");
@@ -36,6 +36,16 @@ const querySnapshot = await getDocs(q);
 if (!querySnapshot.empty) {
 
   setStatus("⚠ Stolen passport detected! Security alert.");
+
+  // STORE ALERT IN FIRESTORE
+  await addDoc(collection(db, "securityAlerts"), {
+    name: name,
+    nationality: nationality,
+    passport: passportNumber,
+    reason: "Stolen Passport detected",
+    status: "detained",
+    timestamp: new Date()
+  });
 
   setTimeout(() => {
     navigate("/security-alert", {

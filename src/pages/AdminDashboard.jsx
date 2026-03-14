@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { db } from "../services/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 
 import {
   BarChart,
@@ -28,30 +28,38 @@ export default function AdminDashboard() {
 
   useEffect(() => {
 
-    const fetchData = async () => {
+  const unsubscribeTravelers = onSnapshot(
+    collection(db, "travelers"),
+    (snapshot) => {
 
-      const travelerSnap = await getDocs(collection(db, "travelers"));
-      const alertSnap = await getDocs(collection(db, "securityAlerts"));
-
-      const travelerData = travelerSnap.docs.map(doc => ({
-  id: doc.id,
-  ...doc.data()
-}));
-      const alertData = alertSnap.docs.map(doc => ({
-  id: doc.id,
-  ...doc.data()
-}));
+      const travelerData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
 
       setTravelers(travelerData);
+    }
+  );
+
+  const unsubscribeAlerts = onSnapshot(
+    collection(db, "securityAlerts"),
+    (snapshot) => {
+
+      const alertData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
       setAlerts(alertData);
+    }
+  );
 
-      calculateStats(travelerData, alertData);
+  return () => {
+    unsubscribeTravelers();
+    unsubscribeAlerts();
+  };
 
-    };
-
-    fetchData();
-
-  }, []);
+}, []);
 
   const calculateStats = (travelerData, alertData) => {
 
@@ -85,19 +93,19 @@ export default function AdminDashboard() {
 
 const laneData = [
   {
-    lane: "Lane 1 (Medical/Emergency Lane)",
+    lane: "1 (Medical)",
     count: travelers.filter(t => t.laneNumber === "Lane 1").length
   },
   {
-    lane: "Lane 2 (Document Verification Lane)",
+    lane: "2(Doc Verification)",
     count: travelers.filter(t => t.laneNumber === "Lane 2").length
   },
   {
-    lane: "Lane 3 (Humanitarian/Asylum Lane)",
+    lane: "3 (Asylum)",
     count: travelers.filter(t => t.laneNumber === "Lane 3").length
   },
   {
-    lane: "Lane 4 (Normal Immigration Lane)",
+    lane: "4 (Immigration)",
     count: travelers.filter(t => t.laneNumber === "Lane 4").length
   }
 ];

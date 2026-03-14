@@ -2,7 +2,7 @@ import LoginK from "./pages/LoginK";
 import PassportVerificationK from "./pages/PassportVerificationK";
 import { Routes, Route } from "react-router-dom";
 import AdminDashboard from "./pages/AdminDashboard";
-
+import NGODashboard from "./pages/NGODashboard";
 import Dashboard from "./pages/Dashboard";
 import Submit from "./pages/Submit";
 import Results from "./pages/Results";
@@ -20,7 +20,7 @@ function App() {
 
       <div className="p-6">
         <Routes>
-
+         <Route path="/ngo-dashboard" element={<NGODashboard />} />
           <Route path="/" element={<LoginK />} />
           <Route path="/admin" element={<AdminDashboard />} />
 <Route path="/security-alert" element={<SecurityAlertK />} />

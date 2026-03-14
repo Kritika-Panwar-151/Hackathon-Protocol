@@ -35,6 +35,9 @@ export default function LoginK() {
       else if (role === "admin") {
         navigate("/admin");
       }
+      else if (role === "ngo") {
+        navigate("/ngo-dashboard");
+      }
 
     } catch (error) {
 
@@ -84,6 +87,7 @@ export default function LoginK() {
             <option value="security">Security Officer</option>
             <option value="asylum">Asylum Officer</option>
             <option value="admin">Admin</option>
+            <option value="ngo">NGO</option>
           </select>
 
           <button
