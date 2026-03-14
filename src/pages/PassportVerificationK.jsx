@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 const stolenPassports = [
   "X1234567",
   "Z9876543",
@@ -13,7 +13,7 @@ export default function PassportVerificationK() {
   const [name, setName] = useState("");
   const [status, setStatus] = useState("");
   const [noPassport, setNoPassport] = useState(false);
-
+  const navigate = useNavigate();
   const verifyPassport = (e) => {
 
     e.preventDefault();
@@ -30,14 +30,38 @@ export default function PassportVerificationK() {
         return;
       }
 
-      if(stolenPassports.includes(passportNumber)){
-        setStatus("⚠ Stolen passport detected! Security alert.");
-        return;
+      if (stolenPassports.includes(passportNumber)) {
+
+  setStatus("⚠ Stolen passport detected! Security alert.");
+
+  setTimeout(() => {
+    navigate("/security-alert", {
+      state: {
+        name,
+        nationality,
+        passportNumber,
+        reason: "Stolen passport detected"
       }
+    });
+  }, 1500);
+
+  return;
+}
 
     }
 
-    setStatus("✔ Identity recorded. Proceed to facial recognition.");
+    setStatus("✔ Identity recorded. Proceeding to facial recognition...");
+
+setTimeout(() => {
+  navigate("/face-scan", {
+    state: {
+      name,
+      nationality,
+      passportNumber: noPassport ? null : passportNumber,
+      noPassport
+    }
+  });
+}, 1500);
 
   };
 

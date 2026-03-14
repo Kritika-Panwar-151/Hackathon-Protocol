@@ -1,8 +1,8 @@
 import LoginK from "./pages/LoginK";
 import PassportVerificationK from "./pages/PassportVerificationK";
 import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
+
+
 import Dashboard from "./pages/Dashboard";
 import Submit from "./pages/Submit";
 import Results from "./pages/Results";
@@ -12,18 +12,18 @@ import NormalCheckpointK from "./pages/NormalCheckpointK";
 import MedicalCheckpointK from "./pages/MedicalCheckpointK";
 import AsylumCheckpointK from "./pages/AsylumCheckpointK";
 import QRGeneratorK from "./pages/QRGeneratorK";
-
+import SecurityAlertK from "./pages/SecurityAlertK";
 function App() {
   return (
     <>
-      <Navbar />
+      
 
       <div className="p-6">
         <Routes>
 
           <Route path="/" element={<LoginK />} />
-          <Route path="/home" element={<Home />} />
-
+          
+<Route path="/security-alert" element={<SecurityAlertK />} />
           <Route path="/passport-verification" element={<PassportVerificationK />} />
           <Route path="/normal-scanner" element={<NormalCheckpointK />} />
           <Route path="/medical-scanner" element={<MedicalCheckpointK />} />

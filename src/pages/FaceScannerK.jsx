@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import * as faceapi from "face-api.js";
 
+import * as faceapi from "face-api.js";
+import { useLocation, useNavigate } from "react-router-dom";
 export default function FaceScannerK() {
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-
+ const location = useLocation();
+const traveler = location.state || {};
+const navigate = useNavigate();
   const CRIMINAL_IMAGES = [
     "/criminal_faces/criminal1.jpg",
     "/criminal_faces/criminal2.jpg"
@@ -16,6 +19,13 @@ export default function FaceScannerK() {
   const [faceMatcher, setFaceMatcher] = useState(null);
   const [verificationResult, setVerificationResult] = useState("");
 
+  useEffect(() => {
+  if (traveler) {
+    console.log("Traveler Data From Passport:", traveler);
+  } else {
+    console.log("No traveler data received");
+  }
+}, [traveler]);
   useEffect(() => {
 
     const loadModels = async () => {
@@ -116,11 +126,33 @@ export default function FaceScannerK() {
 
     console.log("Match result:", bestMatch);
 
-    if (bestMatch.label !== "unknown") {
-      setVerificationResult("⚠ Criminal Match Detected – Security Alert");
-    } else {
-      setVerificationResult("✔ Face Clear");
-    }
+   if (bestMatch.label !== "unknown") {
+
+  setVerificationResult("⚠ Criminal Match Detected – Security Alert");
+
+  setTimeout(() => {
+    navigate("/security-alert", {
+      state: {
+        ...traveler,
+        reason: "Criminal face match detected"
+      }
+    });
+  }, 1500);
+
+} else {
+
+  setVerificationResult("✔ Face Clear — Proceeding to Categorization...");
+
+  setTimeout(() => {
+    navigate("/categorization", {
+      state: {
+        ...traveler,
+        faceStatus: "clear"
+      }
+    });
+  }, 2000);
+
+}
     // stop camera
     const stream = videoRef.current.srcObject;
     if (stream) {

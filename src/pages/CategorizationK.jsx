@@ -1,7 +1,10 @@
 import { useState } from "react";
-
+import { useLocation, useNavigate } from "react-router-dom";
 export default function CategorizationK() {
-
+  const location = useLocation();
+const traveler = location.state || {};
+const navigate = useNavigate();
+console.log("Traveler Data from Face Scan:", traveler);
   const [category, setCategory] = useState("");
   const [health, setHealth] = useState("");
   const [lane, setLane] = useState("");
@@ -72,6 +75,13 @@ export default function CategorizationK() {
       <h2 className="text-xl font-bold mb-4">
         Traveler Categorization
       </h2>
+      {traveler && (
+  <div className="mb-4 p-3 bg-gray-100 rounded">
+    <p><strong>Name:</strong> {traveler.name}</p>
+    <p><strong>Nationality:</strong> {traveler.nationality}</p>
+    <p><strong>Passport:</strong> {traveler.passportNumber || "None"}</p>
+  </div>
+)}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
@@ -130,12 +140,28 @@ export default function CategorizationK() {
           {emergencyAlert && (
             <div className="mt-3 p-3 bg-red-100 text-red-700 rounded font-semibold">
               ⚠ Emergency Case – Medical personnel deployed.
-              Send traveler immediately to Medical Lane.
+              
             </div>
           )}
 
         </div>
       )}
+      <button
+  onClick={() =>
+    navigate("/qr-generator", {
+      state: {
+        ...traveler,
+        category,
+        health,
+        lane,
+        priority
+      }
+    })
+  }
+  className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+>
+  Proceed to QR Generation
+</button>
 
     </div>
   );

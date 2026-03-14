@@ -2,38 +2,64 @@ import { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { db } from "../services/firebase";
 import { collection, addDoc } from "firebase/firestore";
-
+import { useLocation, useNavigate } from "react-router-dom";
 export default function QRGeneratorK() {
 
-  const [name, setName] = useState("");
-  const [nationality, setNationality] = useState("");
-  const [category, setCategory] = useState("");
-  const [lane, setLane] = useState("");
+ const location = useLocation();
+const traveler = location.state || {};
+const navigate = useNavigate();
   const [qrData, setQrData] = useState(null);
+  const [instruction, setInstruction] = useState("");
 
   const generateQR = async () => {
 
-    const borderID = "BORDER-" + Math.floor(Math.random() * 100000);
+  let borderID = "";
+  let message = "";
 
-    const travelerData = {
-      borderID,
-      name,
-      nationality,
-      category,
-      lane,
-      security: "clear"
-    };
+  // NO PASSPORT CASE
+  if (traveler.noPassport) {
 
-    // Save in Firestore (online database)
-    await addDoc(collection(db, "travelers"), travelerData);
+    borderID = "TEMP-" + Math.floor(Math.random() * 100000);
 
-    // Store data inside QR (offline verification)
-    const qrPayload = JSON.stringify(travelerData);
+    message = "Proceed to Humanitarian Lane for document verification";
 
-    setQrData(qrPayload);
+  }
 
+  // MEDICAL CASE
+  else if (traveler.health === "medical") {
+
+    borderID = "MED-" + Math.floor(Math.random() * 100000);
+
+    message = "Please wait here. Medical personnel will assist you.";
+
+  }
+
+  // NORMAL CASE
+  else {
+
+    borderID = "BORDER-" + Math.floor(Math.random() * 100000);
+
+    message = "Proceed to assigned lane.";
+
+  }
+
+  const travelerData = {
+    borderID,
+    name: traveler.name,
+    nationality: traveler.nationality,
+    passport: traveler.passportNumber || "none",
+    category: traveler.category,
+    lane: traveler.lane,
+    priority: traveler.priority,
+    health: traveler.health
   };
 
+  await addDoc(collection(db, "travelers"), travelerData);
+
+  const qrPayload = JSON.stringify(travelerData);
+  setInstruction(message);
+  setQrData(qrPayload);
+};
   return (
     <div className="max-w-xl mx-auto p-6 bg-white rounded shadow">
 
@@ -43,44 +69,21 @@ export default function QRGeneratorK() {
 
       <div className="flex flex-col gap-3">
 
-        <input
-          type="text"
-          placeholder="Traveler Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="border p-2 rounded"
-        />
+        <div className="p-4 bg-gray-100 rounded mb-4">
 
-        <input
-          type="text"
-          placeholder="Nationality"
-          value={nationality}
-          onChange={(e) => setNationality(e.target.value)}
-          className="border p-2 rounded"
-        />
+  <p><strong>Name:</strong> {traveler.name}</p>
+  <p><strong>Nationality:</strong> {traveler.nationality}</p>
+  <p><strong>Category:</strong> {traveler.category}</p>
+  <p><strong>Assigned Lane:</strong> {traveler.lane}</p>
 
-        <input
-          type="text"
-          placeholder="Category (tourist/refugee/etc)"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="border p-2 rounded"
-        />
-
-        <input
-          type="text"
-          placeholder="Assigned Lane"
-          value={lane}
-          onChange={(e) => setLane(e.target.value)}
-          className="border p-2 rounded"
-        />
+</div>
 
         <button
-          onClick={generateQR}
-          className="bg-blue-600 text-white px-4 py-2 rounded mt-2"
-        >
-          Generate QR
-        </button>
+  onClick={generateQR}
+  className="bg-blue-600 text-white px-4 py-2 rounded"
+>
+  Generate QR Pass
+</button>
 
       </div>
 
@@ -95,6 +98,19 @@ export default function QRGeneratorK() {
 
         </div>
       )}
+      {instruction && (
+  <p className="mt-4 font-semibold text-green-700">
+    {instruction}
+  </p>
+)}
+{qrData && (
+  <button
+    onClick={() => navigate("/passport-verification")}
+    className="mt-6 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+  >
+    Process Next Traveler
+  </button>
+)}
 
     </div>
   );

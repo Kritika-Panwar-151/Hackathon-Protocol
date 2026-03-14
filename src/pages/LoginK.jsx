@@ -15,7 +15,7 @@ export default function LoginK() {
 
   try {
     await signInWithEmailAndPassword(auth, email, password);
-    navigate("/dashboard");
+    navigate("/passport-verification");
   } catch (error) {
     console.log(error);
   }
