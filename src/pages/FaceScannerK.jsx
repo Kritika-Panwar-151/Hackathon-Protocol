@@ -31,9 +31,12 @@ const navigate = useNavigate();
 
     const loadModels = async () => {
 
+      await faceapi.tf.setBackend('cpu');
+    await faceapi.tf.ready();
+      
       const MODEL_URL = "/models";
 
-      await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
       await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
       await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
 
@@ -45,7 +48,10 @@ const navigate = useNavigate();
           const img = await faceapi.fetchImage(imgPath);
 
           const detection = await faceapi
-            .detectSingleFace(img)
+            .detectSingleFace(
+              img,
+              new faceapi.TinyFaceDetectorOptions()
+            )
             .withFaceLandmarks()
             .withFaceDescriptor();
 
@@ -73,7 +79,10 @@ const navigate = useNavigate();
   const startCamera = async () => {
 
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: true
+      video: {
+        width: 640,
+        height: 480
+      }
     });
 
     const video = videoRef.current;
@@ -109,10 +118,15 @@ const navigate = useNavigate();
     
 
     const detection = await faceapi
-      .detectSingleFace(videoRef.current)
+      .detectSingleFace(
+        videoRef.current,
+        new faceapi.TinyFaceDetectorOptions({
+          inputSize: 224,
+          scoreThreshold: 0.5
+        })
+      )
       .withFaceLandmarks()
       .withFaceDescriptor();
-
     if (!faceMatcher) {
       alert("Face matcher not ready yet");
       return;
@@ -181,7 +195,10 @@ const navigate = useNavigate();
 
       const detections = await faceapi.detectAllFaces(
         videoRef.current,
-        new faceapi.SsdMobilenetv1Options()
+        new faceapi.TinyFaceDetectorOptions({
+          inputSize: 224,
+          scoreThreshold: 0.5
+        })
       );
 
       const canvas = canvasRef.current;
